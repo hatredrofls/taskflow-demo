@@ -1,66 +1,67 @@
 <template>
   <f7-page name="home">
-    <f7-navbar title="TaskFlow" />
+    <f7-navbar title="TaskFlow">
+      <template #right>
+        <f7-link href="/about/">
+          <i class="f7-icons">info_circle</i>
+        </f7-link>
+      </template>
+    </f7-navbar>
 
-    <div class="app-content">
-      <div class="welcome-block">
+    <div class="page-content">
+      <div class="home-header">
         <h1>Мої завдання</h1>
-        <p>
-          Керуйте завданнями та відстежуйте
-          їх виконання.
-        </p>
+        <p>Плануй свій день ефективно</p>
       </div>
 
-      <div class="summary-card">
-        <div>
-          <span class="summary-label">
-            Виконано завдань
-          </span>
-
-          <div class="summary-value">
-            {{ completedCount }} / {{ tasks.length }}
-          </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-number">{{ tasks.length }}</div>
+          <div class="stat-label">Усього завдань</div>
         </div>
 
-        <div class="summary-icon">✓</div>
+        <div class="stat-card">
+          <div class="stat-number">{{ completedCount }}</div>
+          <div class="stat-label">Виконано</div>
+        </div>
       </div>
 
       <div class="section-header">
-        <h2>Список завдань</h2>
-        <span>{{ tasks.length }} завдань</span>
+        <h2>Останні завдання</h2>
+        <f7-link href="/tasks/">Усі</f7-link>
       </div>
 
-      <div class="task-list">
-        <TaskCard
-          v-for="task in tasks"
+      <f7-list media-list class="task-list">
+        <f7-list-item
+          v-for="task in recentTasks"
           :key="task.id"
-          :task="task"
-        />
-      </div>
-
-      <f7-button
-        fill
-        large
-        href="/about/"
-        class="about-button"
-      >
-        Про застосунок
-      </f7-button>
+          :title="task.title"
+          :subtitle="task.description"
+        >
+          <template #media>
+            <i
+              class="f7-icons task-icon"
+              :class="{ completed: task.completed }"
+            >
+              {{ task.completed ? 'checkmark_circle_fill' : 'circle' }}
+            </i>
+          </template>
+        </f7-list-item>
+      </f7-list>
     </div>
+
+    <AppTabbar active="home" />
   </f7-page>
 </template>
 
 <script setup>
-import { computed, ref } from 'vue';
+import { computed } from 'vue';
+import { tasks } from '../data/tasks.js';
+import AppTabbar from '../components/AppTabbar.vue';
 
-import TaskCard from '../components/TaskCard.vue';
-import { tasks as initialTasks } from '../data/tasks.js';
+const completedCount = computed(
+  () => tasks.filter((task) => task.completed).length,
+);
 
-const tasks = ref(initialTasks);
-
-const completedCount = computed(() => {
-  return tasks.value.filter(
-    task => task.status === 'done'
-  ).length;
-});
+const recentTasks = computed(() => tasks.slice(0, 3));
 </script>
